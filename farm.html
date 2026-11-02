@@ -42,6 +42,19 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   animation: blink 1.6s ease-in-out infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+@keyframes silverBounce {
+  0%   { transform: translateY(0); }
+  16%  { transform: translateY(-24px); }
+  32%  { transform: translateY(0); }
+  46%  { transform: translateY(-13px); }
+  58%  { transform: translateY(0); }
+  69%  { transform: translateY(-6px); }
+  78%  { transform: translateY(0); }
+  85%  { transform: translateY(-3px); }
+  91%  { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+#horseshoe.bouncing { animation: silverBounce 1.8s ease-out forwards; }
 
 /* ── PRINCESS PUZZLE ── */
 #princess-puzzle { position: absolute; inset: 0; z-index: 20; display: none; pointer-events: none; }
@@ -205,7 +218,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   </g>
 
   <!-- Silver horseshoe (hidden until win) — single connected U-path -->
-  <g id="horseshoe" opacity="0" style="transition:opacity 0.6s">
+  <g id="horseshoe" opacity="0" style="transition:opacity 0.5s">
     <path d="M557,318 L557,296 Q557,248 583,238 Q609,248 609,296 L609,318"
           stroke="#C8C8C8" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M557,318 L557,296 Q557,248 583,238 Q609,248 609,296 L609,318"
@@ -553,7 +566,7 @@ function openDoors() {
   const dr = document.getElementById('door-r');
   dl.style.transition = dr.style.transition = 'opacity 0.7s';
   dl.style.opacity = dr.style.opacity = '0.15';
-  setTimeout(() => { document.getElementById('horseshoe').style.opacity = '1'; }, 500);
+  setTimeout(revealSilver, 500);
   setTimeout(showWin, 1400);
 }
 
@@ -593,9 +606,17 @@ function resetKnight() {
   });
 }
 
+function revealSilver() {
+  const hs = document.getElementById('horseshoe');
+  hs.style.opacity = '1';
+  hs.classList.remove('bouncing');
+  void hs.getBoundingClientRect(); // force reflow so animation restarts cleanly
+  hs.classList.add('bouncing');
+}
+
 function openChest() {
   document.getElementById('chest').style.opacity = '0.2';
-  document.getElementById('horseshoe').style.opacity = '1';
+  revealSilver();
   setTimeout(showWin, 800);
 }
 
