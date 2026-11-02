@@ -142,10 +142,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   <!-- Sky -->
   <rect width="800" height="600" fill="url(#sky)"/>
 
-  <!-- Sun -->
+  <!-- Sun — far background, no outlines -->
   <circle cx="698" cy="82" r="55" fill="#FFE860" opacity="0.9"/>
   <circle cx="698" cy="82" r="44" fill="#FFF080"/>
-  <g stroke="#FFD700" stroke-width="5" stroke-linecap="round" opacity="0.6">
+  <g stroke="#FFD700" stroke-width="2" stroke-linecap="round" opacity="0.5">
     <line x1="698" y1="15" x2="698" y2="5"/>
     <line x1="745" y1="35" x2="752" y2="26"/>
     <line x1="765" y1="82" x2="775" y2="82"/>
@@ -174,34 +174,34 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   <rect x="0" y="372" width="800" height="228" fill="#7EC848"/>
   <ellipse cx="400" cy="373" rx="460" ry="22" fill="#6AAC30" opacity="0.55"/>
 
-  <!-- ═══ BARN — drawn before fence so fence overlaps base correctly ═══ -->
-  <rect x="478" y="212" width="224" height="178" rx="4" fill="#D03828" stroke="#333" stroke-width="4"/>
-  <g stroke="#B82818" stroke-width="2" opacity="0.4">
+  <!-- ═══ BARN — mid-distant: 2px outlines ═══ -->
+  <rect x="478" y="212" width="224" height="178" rx="4" fill="#D03828" stroke="#333" stroke-width="2"/>
+  <g stroke="#B82818" stroke-width="1" opacity="0.4">
     <line x1="512" y1="212" x2="512" y2="390"/> <line x1="546" y1="212" x2="546" y2="390"/>
     <line x1="580" y1="212" x2="580" y2="390"/> <line x1="614" y1="212" x2="614" y2="390"/>
     <line x1="648" y1="212" x2="648" y2="390"/> <line x1="682" y1="212" x2="682" y2="390"/>
   </g>
-  <polygon points="458,214 590,112 722,214" fill="#A02020" stroke="#333" stroke-width="4"/>
-  <rect x="582" y="108" width="16" height="108" rx="4" fill="#882010" stroke="#333" stroke-width="2.5"/>
-  <rect x="589" y="78" width="4" height="32" fill="#888" stroke="#555" stroke-width="1"/>
-  <line x1="570" y1="84" x2="612" y2="84" stroke="#888" stroke-width="3" stroke-linecap="round"/>
-  <ellipse cx="612" cy="82" rx="9" ry="7" fill="#888" stroke="#555" stroke-width="1.5"/>
-  <polygon points="612,76 618,70 614,76" fill="#888" stroke="#555" stroke-width="1"/>
-  <rect x="564" y="150" width="52" height="42" rx="6" fill="#A8D8F8" stroke="#333" stroke-width="3"/>
-  <line x1="590" y1="150" x2="590" y2="192" stroke="#333" stroke-width="2"/>
-  <line x1="564" y1="171" x2="616" y2="171" stroke="#333" stroke-width="2"/>
-  <rect id="door-l" x="488" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="3.5"/>
-  <rect id="door-r" x="584" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="3.5"/>
-  <line x1="583" y1="270" x2="583" y2="390" stroke="#333" stroke-width="3"/>
-  <circle cx="581" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="2"/>
-  <circle cx="585" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="2"/>
+  <polygon points="458,214 590,112 722,214" fill="#A02020" stroke="#333" stroke-width="2"/>
+  <rect x="582" y="108" width="16" height="108" rx="4" fill="#882010" stroke="#333" stroke-width="1.5"/>
+  <rect x="589" y="78" width="4" height="32" fill="#888" stroke="#555" stroke-width="0.8"/>
+  <line x1="570" y1="84" x2="612" y2="84" stroke="#888" stroke-width="1.5" stroke-linecap="round"/>
+  <ellipse cx="612" cy="82" rx="9" ry="7" fill="#888" stroke="#555" stroke-width="1"/>
+  <polygon points="612,76 618,70 614,76" fill="#888" stroke="#555" stroke-width="0.5"/>
+  <rect x="564" y="150" width="52" height="42" rx="6" fill="#A8D8F8" stroke="#333" stroke-width="2"/>
+  <line x1="590" y1="150" x2="590" y2="192" stroke="#333" stroke-width="1.5"/>
+  <line x1="564" y1="171" x2="616" y2="171" stroke="#333" stroke-width="1.5"/>
+  <rect id="door-l" x="488" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="2"/>
+  <rect id="door-r" x="584" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="2"/>
+  <line x1="583" y1="270" x2="583" y2="390" stroke="#333" stroke-width="1.5"/>
+  <circle cx="581" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="1.5"/>
+  <circle cx="585" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="1.5"/>
 
-  <!-- Chest (Knight puzzle, hidden) — raised above fence level -->
+  <!-- Chest (Knight puzzle, hidden) — on barn wall, barn-distance outlines -->
   <g id="chest" opacity="0" style="transition:opacity 0.5s">
-    <rect x="535" y="308" width="70" height="52" rx="8" fill="#8B5E20" stroke="#333" stroke-width="3.5"/>
-    <rect x="535" y="308" width="70" height="22" rx="8" fill="#A07030" stroke="#333" stroke-width="3"/>
-    <rect x="563" y="322" width="14" height="18" rx="4" fill="#C8A030" stroke="#333" stroke-width="2"/>
-    <rect x="535" y="320" width="70" height="6" rx="2" fill="#C8A030" stroke="#333" stroke-width="1.5"/>
+    <rect x="535" y="308" width="70" height="52" rx="8" fill="#8B5E20" stroke="#333" stroke-width="2"/>
+    <rect x="535" y="308" width="70" height="22" rx="8" fill="#A07030" stroke="#333" stroke-width="2"/>
+    <rect x="563" y="322" width="14" height="18" rx="4" fill="#C8A030" stroke="#333" stroke-width="1.5"/>
+    <rect x="535" y="320" width="70" height="6" rx="2" fill="#C8A030" stroke="#333" stroke-width="1"/>
   </g>
 
   <!-- Silver horseshoe (hidden until win) — single connected U-path -->
@@ -215,24 +215,24 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
     <text x="568" y="270" font-size="16">✨</text>
   </g>
 
-  <!-- ═══ SCARECROW — shifted right to clear tractor ═══ -->
+  <!-- ═══ SCARECROW — mid distance: 3px outlines ═══ -->
   <rect x="338" y="282" width="7" height="118" rx="3" fill="#A07840" stroke="#7A5820" stroke-width="2"/>
   <rect x="304" y="301" width="74" height="7" rx="3" fill="#A07840" stroke="#7A5820" stroke-width="2"/>
-  <rect x="322" y="308" width="38" height="52" rx="8" fill="#E8C848" stroke="#333" stroke-width="2.5"/>
-  <line x1="341" y1="312" x2="341" y2="358" stroke="#D4A828" stroke-width="2"/>
-  <rect x="306" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="2"/>
-  <rect x="348" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="2"/>
-  <circle cx="341" cy="286" r="21" fill="#F5D888" stroke="#333" stroke-width="2.5"/>
-  <path d="M332,281 Q341,291 350,281" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <rect x="322" y="308" width="38" height="52" rx="8" fill="#E8C848" stroke="#333" stroke-width="3"/>
+  <line x1="341" y1="312" x2="341" y2="358" stroke="#D4A828" stroke-width="1.5"/>
+  <rect x="306" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="3"/>
+  <rect x="348" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="3"/>
+  <circle cx="341" cy="286" r="21" fill="#F5D888" stroke="#333" stroke-width="3"/>
+  <path d="M332,281 Q341,291 350,281" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
   <ellipse cx="334" cy="276" rx="4" ry="4" fill="#333"/>
   <ellipse cx="348" cy="276" rx="4" ry="4" fill="#333"/>
-  <ellipse cx="341" cy="265" rx="27" ry="7" fill="#C8A028" stroke="#333" stroke-width="2.5"/>
-  <rect x="327" y="249" width="27" height="17" rx="4" fill="#C8A028" stroke="#333" stroke-width="2.5"/>
+  <ellipse cx="341" cy="265" rx="27" ry="7" fill="#C8A028" stroke="#333" stroke-width="3"/>
+  <rect x="327" y="249" width="27" height="17" rx="4" fill="#C8A028" stroke="#333" stroke-width="3"/>
 
-  <!-- ═══ FENCE — drawn after barn/tractor/scarecrow so it sits in front ═══ -->
-  <rect x="0" y="386" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="1.5"/>
-  <rect x="0" y="410" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="1.5"/>
-  <g fill="#C8A858" stroke="#907030" stroke-width="2">
+  <!-- ═══ FENCE — mid-foreground: 3px posts, 2px rails ═══ -->
+  <rect x="0" y="386" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="2"/>
+  <rect x="0" y="410" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="2"/>
+  <g fill="#C8A858" stroke="#907030" stroke-width="3">
     <rect x="22" y="376" width="13" height="52" rx="3"/>
     <rect x="102" y="376" width="13" height="52" rx="3"/>
     <rect x="182" y="376" width="13" height="52" rx="3"/>
@@ -245,59 +245,59 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
     <rect x="742" y="376" width="13" height="52" rx="3"/>
   </g>
 
-  <!-- Grass tufts / flowers -->
-  <polygon points="50,430 54,414 58,430" fill="#58A018" stroke="#407010" stroke-width="1"/>
-  <polygon points="55,430 60,410 65,430" fill="#58A018" stroke="#407010" stroke-width="1"/>
-  <circle cx="82" cy="432" r="5" fill="#F050A0" stroke="#333" stroke-width="1.5"/>
+  <!-- Grass tufts / flowers — near foreground: 2.5px outlines -->
+  <polygon points="50,430 54,414 58,430" fill="#58A018" stroke="#407010" stroke-width="2.5"/>
+  <polygon points="55,430 60,410 65,430" fill="#58A018" stroke="#407010" stroke-width="2.5"/>
+  <circle cx="82" cy="432" r="5" fill="#F050A0" stroke="#333" stroke-width="2.5"/>
   <circle cx="82" cy="432" r="2.5" fill="#FFE040"/>
-  <circle cx="448" cy="430" r="5" fill="#F0D020" stroke="#333" stroke-width="1.5"/>
+  <circle cx="448" cy="430" r="5" fill="#F0D020" stroke="#333" stroke-width="2.5"/>
   <circle cx="448" cy="430" r="2.5" fill="#F09020"/>
-  <circle cx="748" cy="431" r="5" fill="#A040F0" stroke="#333" stroke-width="1.5"/>
+  <circle cx="748" cy="431" r="5" fill="#A040F0" stroke="#333" stroke-width="2.5"/>
   <circle cx="748" cy="431" r="2.5" fill="#FFE040"/>
 
-  <!-- ═══ CHICKENS — drawn after fence, placed below it ═══ -->
+  <!-- ═══ CHICKENS — foreground: 3.5px outlines ═══ -->
   <g transform="translate(306,450)">
-    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="2"/>
-    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="2"/>
-    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="3.5"/>
+    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="3.5"/>
+    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="2.5"/>
     <circle cx="18" cy="-11" r="2.5" fill="#333"/>
     <polygon points="15,-20 12,-15 17,-15 14,-20" fill="#E03020"/>
     <polygon points="19,-19 17,-14 21,-14 19,-19" fill="#E03020"/>
-    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="2.5"/>
-    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="2.5"/>
+    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="3.5"/>
+    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="3.5"/>
   </g>
   <g transform="translate(358,456) scale(0.82)">
-    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="2.5"/>
-    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="2.5"/>
-    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="2"/>
+    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="3.5"/>
+    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="3.5"/>
+    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="2.5"/>
     <circle cx="18" cy="-11" r="2.5" fill="#333"/>
     <polygon points="15,-20 12,-15 17,-15" fill="#E03020"/>
-    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="3"/>
-    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="3"/>
+    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="3.5"/>
+    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="3.5"/>
   </g>
 
-  <!-- Jerry (bottom-left corner) -->
+  <!-- Jerry (bottom-left corner) — closest foreground: 4.5px main, 3px details -->
   <g transform="translate(18, 415)">
-    <ellipse cx="38" cy="56" rx="20" ry="25" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="38" cy="56" rx="20" ry="25" fill="#2A2A2A" stroke="#333" stroke-width="4.5"/>
     <ellipse cx="38" cy="48" rx="16" ry="19" fill="#C8955A"/>
     <ellipse cx="38" cy="62" rx="12" ry="14" fill="#F0EBE0"/>
-    <ellipse cx="38" cy="30" rx="18" ry="16" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
-    <ellipse cx="38" cy="38" rx="11" ry="9" fill="#2A2A2A" stroke="#333" stroke-width="2"/>
+    <ellipse cx="38" cy="30" rx="18" ry="16" fill="#2A2A2A" stroke="#333" stroke-width="4.5"/>
+    <ellipse cx="38" cy="38" rx="11" ry="9" fill="#2A2A2A" stroke="#333" stroke-width="3"/>
     <ellipse cx="30" cy="27" rx="7" ry="6" fill="#2A2A2A"/>
     <ellipse cx="46" cy="27" rx="7" ry="6" fill="#2A2A2A"/>
-    <ellipse cx="30" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
-    <ellipse cx="46" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="30" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="46" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="2.5"/>
     <ellipse cx="31" cy="26" rx="3" ry="3" fill="#3A2010"/>
     <ellipse cx="47" cy="26" rx="3" ry="3" fill="#3A2010"/>
-    <path d="M25,23 Q30,19 35,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
-    <path d="M41,23 Q46,19 51,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
-    <ellipse cx="38" cy="40" rx="3.5" ry="3" fill="#7A3020" stroke="#333" stroke-width="1.5"/>
-    <path d="M33,45 Q38,50 43,45" stroke="#333" stroke-width="2" fill="none"/>
-    <path d="M24,18 Q12,10 10,34 Q18,36 26,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
-    <path d="M52,18 Q64,10 66,34 Q58,36 50,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
-    <path d="M36,22 Q38,18 40,22" stroke="#333" stroke-width="2" fill="#2A2A2A"/>
-    <path d="M34,22 Q32,18 30,22" stroke="#333" stroke-width="2" fill="#2A2A2A"/>
-    <path d="M38,64 Q45,55 52,60" stroke="#2A2A2A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M25,23 Q30,19 35,23" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+    <path d="M41,23 Q46,19 51,23" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+    <ellipse cx="38" cy="40" rx="3.5" ry="3" fill="#7A3020" stroke="#333" stroke-width="2"/>
+    <path d="M33,45 Q38,50 43,45" stroke="#333" stroke-width="3" fill="none"/>
+    <path d="M24,18 Q12,10 10,34 Q18,36 26,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="4.5"/>
+    <path d="M52,18 Q64,10 66,34 Q58,36 50,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="4.5"/>
+    <path d="M36,22 Q38,18 40,22" stroke="#333" stroke-width="3" fill="#2A2A2A"/>
+    <path d="M34,22 Q32,18 30,22" stroke="#333" stroke-width="3" fill="#2A2A2A"/>
+    <path d="M38,64 Q45,55 52,60" stroke="#2A2A2A" stroke-width="4.5" fill="none" stroke-linecap="round"/>
   </g>
 </svg>
 
