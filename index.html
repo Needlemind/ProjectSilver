@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Project Silver</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    font-family: 'Nunito', sans-serif;
+    touch-action: manipulation;
+    user-select: none; -webkit-user-select: none;
+  }
+
+  .screen {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  .screen.active { opacity: 1; pointer-events: all; }
+
+  /* ── TITLE ── */
+  #screen-title {
+    background: linear-gradient(180deg, #5BB8F5 0%, #87CEEB 45%, #A8D870 72%, #7EC850 100%);
+  }
+
+  .title-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(2.8rem, 9vw, 5.5rem);
+    color: #D8D8D8;
+    text-shadow: 4px 4px 0 #999, -2px -2px 0 #444, 2px -2px 0 #444, -2px 2px 0 #444, 2px 2px 0 #444;
+    letter-spacing: 3px;
+    animation: titleFloat 3s ease-in-out infinite;
+    margin-bottom: 0.15em;
+  }
+  .title-sub {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1rem, 2.8vw, 1.6rem);
+    color: #FFD700;
+    text-shadow: 1px 1px 0 #B8860B, -1px -1px 0 #444;
+    margin-bottom: 1.5em;
+  }
+  @keyframes titleFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .start-btn {
+    background: #FFD700; border: 4px solid #333; border-radius: 50px;
+    padding: 0.75em 2.5em;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.2rem, 3.5vw, 1.9rem);
+    color: #333; cursor: pointer;
+    box-shadow: 0 6px 0 #B8860B, 0 8px 16px rgba(0,0,0,0.2);
+    animation: btnPop 2.2s ease-in-out infinite;
+    transition: transform 0.1s, box-shadow 0.1s;
+    margin-top: 1em;
+  }
+  .start-btn:active {
+    transform: translateY(5px);
+    box-shadow: 0 1px 0 #B8860B, 0 3px 8px rgba(0,0,0,0.2);
+  }
+  @keyframes btnPop {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+
+  /* ── CHARACTER SELECT ── */
+  #screen-character {
+    background: linear-gradient(180deg, #FFFAEE 0%, #FFF0C8 100%);
+  }
+  .select-heading {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.6rem, 5vw, 3rem);
+    color: #333; margin-bottom: 0.3em;
+  }
+  .select-sub {
+    font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+    color: #888; margin-bottom: 1.4em;
+  }
+  .cards { display: flex; gap: clamp(1rem, 4vw, 3rem); align-items: flex-start; }
+  .card {
+    background: white; border: 4px solid #333; border-radius: 24px;
+    padding: 1.4em 1.2em 1em; width: clamp(130px, 26vw, 210px);
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #333, 0 8px 20px rgba(0,0,0,0.12);
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .card:hover, .card:focus { outline: none; transform: translateY(-8px) scale(1.04); }
+  .card.knight { border-color: #4A90D9; box-shadow: 0 6px 0 #2870B9, 0 8px 20px rgba(0,0,0,0.12); }
+  .card.knight:hover { box-shadow: 0 14px 0 #2870B9, 0 16px 24px rgba(0,0,0,0.18); }
+  .card.princess { border-color: #E06090; box-shadow: 0 6px 0 #C04070, 0 8px 20px rgba(0,0,0,0.12); }
+  .card.princess:hover { box-shadow: 0 14px 0 #C04070, 0 16px 24px rgba(0,0,0,0.18); }
+  .card-name {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.1rem, 3.2vw, 1.7rem);
+    margin-top: 0.4em;
+  }
+  .card-desc {
+    font-size: clamp(0.75rem, 1.9vw, 1rem);
+    color: #888; text-align: center; margin-top: 0.3em; line-height: 1.45;
+  }
+
+  /* ── MAP ── */
+  #screen-map { overflow: hidden; }
+
+  .map-header {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.6em 1.4em;
+    background: rgba(255,255,255,0.38);
+    backdrop-filter: blur(6px);
+    border-bottom: 2px solid rgba(0,0,0,0.08);
+  }
+  .hdr-badge {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(0.85rem, 2.3vw, 1.25rem); color: #333;
+    display: flex; align-items: center; gap: 0.4em;
+  }
+  .hdr-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1rem, 3vw, 1.8rem); color: #333;
+  }
+  .hdr-silver {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(0.85rem, 2.3vw, 1.25rem); color: #333;
+    display: flex; align-items: center; gap: 0.4em;
+  }
+
+  .map-bubble {
+    position: absolute; bottom: 1.5em; left: 50%; transform: translateX(-50%);
+    background: white; border: 3px solid #333; border-radius: 20px;
+    padding: 0.75em 1.4em;
+    font-size: clamp(0.8rem, 2.3vw, 1.05rem); color: #333;
+    max-width: min(360px, 90vw); text-align: center; line-height: 1.65;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+    animation: bubblePop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 10;
+  }
+  @keyframes bubblePop {
+    from { transform: translateX(-50%) scale(0.5); opacity: 0; }
+    to   { transform: translateX(-50%) scale(1);   opacity: 1; }
+  }
+
+  /* world node pulse on unlocked */
+  .unlocked-pulse { animation: wPulse 2s ease-in-out infinite; }
+  @keyframes wPulse { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+  /* toast */
+  #toast {
+    position: fixed; bottom: 2em; left: 50%;
+    transform: translateX(-50%) translateY(120px);
+    background: #333; color: white;
+    padding: 0.7em 1.8em; border-radius: 50px;
+    font-family: 'Fredoka One', cursive; font-size: 1.05rem;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    z-index: 200; pointer-events: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ TITLE SCREEN ═══════════════ -->
+<div id="screen-title" class="screen active">
+
+  <!-- Clouds -->
+  <div style="position:absolute;top:7%;left:4%;pointer-events:none">
+    <svg width="130" height="70" viewBox="0 0 130 70">
+      <ellipse cx="65" cy="55" rx="55" ry="20" fill="white" opacity="0.9"/>
+      <ellipse cx="45" cy="38" rx="30" ry="26" fill="white" opacity="0.9"/>
+      <ellipse cx="78" cy="34" rx="28" ry="24" fill="white" opacity="0.9"/>
+    </svg>
+  </div>
+  <div style="position:absolute;top:4%;right:6%;pointer-events:none">
+    <svg width="110" height="60" viewBox="0 0 110 60">
+      <ellipse cx="55" cy="48" rx="46" ry="17" fill="white" opacity="0.85"/>
+      <ellipse cx="36" cy="32" rx="26" ry="22" fill="white" opacity="0.85"/>
+      <ellipse cx="66" cy="28" rx="24" ry="21" fill="white" opacity="0.85"/>
+    </svg>
+  </div>
+  <div style="position:absolute;top:14%;left:38%;pointer-events:none">
+    <svg width="90" height="52" viewBox="0 0 90 52">
+      <ellipse cx="45" cy="42" rx="38" ry="14" fill="white" opacity="0.8"/>
+      <ellipse cx="30" cy="26" rx="22" ry="19" fill="white" opacity="0.8"/>
+      <ellipse cx="57" cy="22" rx="20" ry="18" fill="white" opacity="0.8"/>
+    </svg>
+  </div>
+
+  <!-- Jerry -->
+  <svg width="180" height="200" viewBox="0 0 180 200" style="margin-bottom:-8px;filter:drop-shadow(0 8px 16px rgba(0,0,0,0.15))">
+    <!-- Tail (feathered Saluki curl) -->
+    <path d="M112,155 Q145,140 148,120 Q151,100 140,95 Q132,92 128,100 Q124,108 130,112 Q136,116 132,125 Q128,134 115,140"
+          stroke="#B8855A" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M112,155 Q145,140 148,120 Q151,100 140,95 Q132,92 128,100 Q124,108 130,112 Q136,116 132,125 Q128,134 115,140"
+          stroke="#D4A870" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <!-- Body -->
+    <ellipse cx="82" cy="145" rx="38" ry="46" fill="#C8955A" stroke="#333" stroke-width="3.5"/>
+    <!-- Black back saddle -->
+    <ellipse cx="82" cy="136" rx="29" ry="35" fill="#2C2C2C"/>
+    <!-- White chest -->
+    <ellipse cx="82" cy="158" rx="20" ry="25" fill="#F0EBE0"/>
+    <!-- Neck -->
+    <rect x="66" y="88" width="32" height="24" rx="12" fill="#C8955A" stroke="#333" stroke-width="3"/>
+    <!-- Head -->
+    <ellipse cx="82" cy="72" rx="32" ry="28" fill="#C8955A" stroke="#333" stroke-width="3.5"/>
+    <!-- Long elegant Saluki snout -->
+    <ellipse cx="82" cy="86" rx="18" ry="14" fill="#B8855A" stroke="#333" stroke-width="3"/>
+    <!-- Tan cheek patches -->
+    <ellipse cx="68" cy="68" rx="12" ry="10" fill="#D4A870"/>
+    <ellipse cx="96" cy="68" rx="12" ry="10" fill="#D4A870"/>
+    <!-- Eyes — sleepy half-closed -->
+    <ellipse cx="68" cy="65" rx="9" ry="7" fill="white" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="96" cy="65" rx="9" ry="7" fill="white" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="69" cy="66" rx="5" ry="5" fill="#3A2010"/>
+    <ellipse cx="97" cy="66" rx="5" ry="5" fill="#3A2010"/>
+    <!-- Sleepy upper lids -->
+    <path d="M59,63 Q68,57 77,63" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+    <path d="M87,63 Q96,57 105,63" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+    <!-- Nose -->
+    <ellipse cx="82" cy="89" rx="6" ry="5" fill="#7A3020" stroke="#333" stroke-width="2"/>
+    <!-- Smile -->
+    <path d="M72,97 Q82,104 92,97" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <!-- Long floppy silky ears -->
+    <path d="M52,58 Q28,42 24,80 Q34,84 50,74 Z" fill="#C8955A" stroke="#333" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M52,58 Q32,48 30,74 Q36,76 48,70 Z" fill="#D4A870"/>
+    <path d="M112,58 Q136,42 140,80 Q130,84 114,74 Z" fill="#C8955A" stroke="#333" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M112,58 Q132,48 134,74 Q128,76 116,70 Z" fill="#D4A870"/>
+    <!-- Legs -->
+    <rect x="58" y="176" width="18" height="24" rx="9" fill="#C8955A" stroke="#333" stroke-width="3"/>
+    <rect x="88" y="176" width="18" height="24" rx="9" fill="#C8955A" stroke="#333" stroke-width="3"/>
+    <!-- Paws -->
+    <ellipse cx="67" cy="199" rx="10" ry="7" fill="#B8855A" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="97" cy="199" rx="10" ry="7" fill="#B8855A" stroke="#333" stroke-width="2.5"/>
+    <!-- Zzz -->
+    <text x="118" y="52" font-family="Fredoka One,cursive" font-size="14" fill="#AAA" stroke="white" stroke-width="3" paint-order="stroke">z</text>
+    <text x="130" y="38" font-family="Fredoka One,cursive" font-size="19" fill="#AAA" stroke="white" stroke-width="3" paint-order="stroke">z</text>
+    <text x="145" y="22" font-family="Fredoka One,cursive" font-size="24" fill="#CCC" stroke="white" stroke-width="3" paint-order="stroke">Z</text>
+  </svg>
+
+  <div class="title-text">Project Silver</div>
+  <div class="title-sub">✨ A quest for treasure ✨</div>
+
+  <!-- Jerry speech bubble -->
+  <div style="position:relative;margin-bottom:0.5em;max-width:min(340px,85vw);text-align:center">
+    <div style="background:white;border:3.5px solid #333;border-radius:22px;padding:0.85em 1.3em;font-size:clamp(0.85rem,2.4vw,1.05rem);line-height:1.65;box-shadow:0 4px 14px rgba(0,0,0,0.1)">
+      <em>"Oh! You woke me up! ...That's alright. I'm Jerry. The fastest dog in the world. <br>...Once I've had a nap."</em>
+    </div>
+    <!-- Bubble pointer up toward Jerry -->
+    <div style="position:absolute;top:-22px;left:50%;transform:translateX(-50%)">
+      <svg width="28" height="22" viewBox="0 0 28 22"><polygon points="14,0 0,22 28,22" fill="#333"/></svg>
+    </div>
+    <div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%)">
+      <svg width="22" height="17" viewBox="0 0 22 17"><polygon points="11,0 0,17 22,17" fill="white"/></svg>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="showScreen('screen-character')">Let's Go! 🐾</button>
+</div>
+
+
+<!-- ═══════════════ CHARACTER SELECT ═══════════════ -->
+<div id="screen-character" class="screen">
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#FFFAEE 0%,#FFF0C8 100%)"></div>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:1em">
+
+    <div class="select-heading">Who are you today?</div>
+    <div class="select-sub">Choose your adventurer — Jerry will come too!</div>
+
+    <div class="cards">
+
+      <!-- KNIGHT -->
+      <div class="card knight" tabindex="0" onclick="selectCharacter('knight')" onkeydown="if(event.key==='Enter')selectCharacter('knight')">
+        <svg width="120" height="148" viewBox="0 0 120 148">
+          <!-- Legs -->
+          <rect x="34" y="118" width="20" height="30" rx="10" fill="#6A80A8" stroke="#333" stroke-width="3"/>
+          <rect x="66" y="118" width="20" height="30" rx="10" fill="#6A80A8" stroke="#333" stroke-width="3"/>
+          <!-- Boots -->
+          <ellipse cx="44" cy="147" rx="13" ry="7" fill="#4A5878" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="76" cy="147" rx="13" ry="7" fill="#4A5878" stroke="#333" stroke-width="2.5"/>
+          <!-- Body armour -->
+          <rect x="28" y="74" width="64" height="52" rx="14" fill="#8FA8C0" stroke="#333" stroke-width="3.5"/>
+          <!-- Chest plate -->
+          <rect x="36" y="80" width="48" height="38" rx="9" fill="#B0C4D8" stroke="#333" stroke-width="2"/>
+          <!-- Chest emblem -->
+          <polygon points="60,88 64,96 72,96 66,102 68,110 60,105 52,110 54,102 48,96 56,96" fill="#FFD700" stroke="#B8860B" stroke-width="1.5"/>
+          <!-- Arms -->
+          <rect x="8" y="76" width="20" height="42" rx="10" fill="#8FA8C0" stroke="#333" stroke-width="3"/>
+          <rect x="92" y="76" width="20" height="42" rx="10" fill="#8FA8C0" stroke="#333" stroke-width="3"/>
+          <!-- Gauntlets -->
+          <ellipse cx="18" cy="120" rx="11" ry="9" fill="#6A80A0" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="102" cy="120" rx="11" ry="9" fill="#6A80A0" stroke="#333" stroke-width="2.5"/>
+          <!-- Sword -->
+          <rect x="97" y="82" width="7" height="46" rx="3.5" fill="#C8C8C8" stroke="#444" stroke-width="1.5"/>
+          <rect x="90" y="106" width="22" height="6" rx="3" fill="#C8A030" stroke="#444" stroke-width="1.5"/>
+          <ellipse cx="100.5" cy="80" rx="5" ry="5" fill="#D0D8E0" stroke="#444" stroke-width="1.5"/>
+          <!-- Neck -->
+          <rect x="48" y="58" width="24" height="22" rx="10" fill="#F4C090" stroke="#333" stroke-width="2.5"/>
+          <!-- Head -->
+          <ellipse cx="60" cy="44" rx="28" ry="26" fill="#F4C090" stroke="#333" stroke-width="3.5"/>
+          <!-- Blonde hair top -->
+          <ellipse cx="60" cy="24" rx="28" ry="14" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <!-- Blonde hair sides -->
+          <rect x="32" y="22" width="11" height="26" rx="5.5" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <rect x="77" y="22" width="11" height="26" rx="5.5" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <!-- Eyes — green -->
+          <ellipse cx="48" cy="43" rx="7" ry="8" fill="white" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="72" cy="43" rx="7" ry="8" fill="white" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="49" cy="44" rx="5" ry="6" fill="#3A8830"/>
+          <ellipse cx="73" cy="44" rx="5" ry="6" fill="#3A8830"/>
+          <ellipse cx="50" cy="43" rx="2.5" ry="2.5" fill="#1A3018"/>
+          <ellipse cx="74" cy="43" rx="2.5" ry="2.5" fill="#1A3018"/>
+          <ellipse cx="51" cy="41" rx="1.5" ry="1.5" fill="white" opacity="0.7"/>
+          <ellipse cx="75" cy="41" rx="1.5" ry="1.5" fill="white" opacity="0.7"/>
+          <!-- Smile -->
+          <path d="M48,57 Q60,66 72,57" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Rosy cheeks -->
+          <ellipse cx="40" cy="52" rx="6" ry="5" fill="#F09090" opacity="0.5"/>
+          <ellipse cx="80" cy="52" rx="6" ry="5" fill="#F09090" opacity="0.5"/>
+        </svg>
+        <div class="card-name" style="color:#4A90D9">The Knight</div>
+        <div class="card-desc">Brave &amp; clever<br>Age 5+</div>
+      </div>
+
+      <!-- PRINCESS -->
+      <div class="card princess" tabindex="0" onclick="selectCharacter('princess')" onkeydown="if(event.key==='Enter')selectCharacter('princess')">
+        <svg width="120" height="148" viewBox="0 0 120 148">
+          <!-- Dress skirt (big poofy) -->
+          <ellipse cx="60" cy="128" rx="48" ry="28" fill="#E868A0" stroke="#333" stroke-width="3.5"/>
+          <ellipse cx="60" cy="128" rx="40" ry="20" fill="#F090B8" stroke="none"/>
+          <!-- Dress bodice -->
+          <rect x="38" y="84" width="44" height="50" rx="10" fill="#E868A0" stroke="#333" stroke-width="3"/>
+          <!-- Dress bodice highlight -->
+          <rect x="44" y="89" width="32" height="38" rx="7" fill="#F090B8" stroke="none"/>
+          <!-- Waist bow -->
+          <path d="M44,103 Q52,97 60,103 Q68,97 76,103" stroke="#C04880" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+          <!-- Puff sleeves -->
+          <ellipse cx="24" cy="94" rx="15" ry="13" fill="#E868A0" stroke="#333" stroke-width="3"/>
+          <ellipse cx="96" cy="94" rx="15" ry="13" fill="#E868A0" stroke="#333" stroke-width="3"/>
+          <!-- Hands -->
+          <ellipse cx="18" cy="108" rx="10" ry="9" fill="#F4C090" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="102" cy="108" rx="10" ry="9" fill="#F4C090" stroke="#333" stroke-width="2.5"/>
+          <!-- Neck -->
+          <rect x="48" y="60" width="24" height="28" rx="10" fill="#F4C090" stroke="#333" stroke-width="2.5"/>
+          <!-- Head -->
+          <ellipse cx="60" cy="44" rx="28" ry="26" fill="#F4C090" stroke="#333" stroke-width="3.5"/>
+          <!-- Blonde hair top -->
+          <ellipse cx="60" cy="24" rx="28" ry="14" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <!-- Curly side hair -->
+          <ellipse cx="33" cy="46" rx="9" ry="13" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="87" cy="46" rx="9" ry="13" fill="#FFD035" stroke="#333" stroke-width="2.5"/>
+          <!-- Crown -->
+          <rect x="38" y="13" width="44" height="14" rx="4" fill="#FFD700" stroke="#333" stroke-width="2.5"/>
+          <polygon points="38,13 44,2 50,13" fill="#FFD700" stroke="#333" stroke-width="2"/>
+          <polygon points="53,13 60,1 67,13" fill="#FFD700" stroke="#333" stroke-width="2"/>
+          <polygon points="70,13 76,2 82,13" fill="#FFD700" stroke="#333" stroke-width="2"/>
+          <ellipse cx="60" cy="5" rx="4" ry="4" fill="#E84040" stroke="#B83030" stroke-width="1"/>
+          <ellipse cx="44" cy="8" rx="3" ry="3" fill="#4040E8" stroke="#2020B0" stroke-width="1"/>
+          <ellipse cx="76" cy="8" rx="3" ry="3" fill="#40C840" stroke="#208020" stroke-width="1"/>
+          <!-- Eyes — blue with lashes -->
+          <ellipse cx="48" cy="43" rx="7" ry="8" fill="white" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="72" cy="43" rx="7" ry="8" fill="white" stroke="#333" stroke-width="2.5"/>
+          <ellipse cx="49" cy="44" rx="5" ry="6" fill="#4870C8"/>
+          <ellipse cx="73" cy="44" rx="5" ry="6" fill="#4870C8"/>
+          <ellipse cx="50" cy="43" rx="2.5" ry="2.5" fill="#1A2060"/>
+          <ellipse cx="74" cy="43" rx="2.5" ry="2.5" fill="#1A2060"/>
+          <ellipse cx="51" cy="41" rx="1.5" ry="1.5" fill="white" opacity="0.7"/>
+          <ellipse cx="75" cy="41" rx="1.5" ry="1.5" fill="white" opacity="0.7"/>
+          <!-- Eyelashes -->
+          <line x1="41" y1="38" x2="39" y2="33" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+          <line x1="46" y1="36" x2="45" y2="31" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+          <line x1="66" y1="36" x2="67" y2="31" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+          <line x1="71" y1="38" x2="73" y2="33" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+          <!-- Smile -->
+          <path d="M48,57 Q60,66 72,57" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Rosy cheeks -->
+          <ellipse cx="39" cy="52" rx="6" ry="5" fill="#F09090" opacity="0.55"/>
+          <ellipse cx="81" cy="52" rx="6" ry="5" fill="#F09090" opacity="0.55"/>
+        </svg>
+        <div class="card-name" style="color:#E06090">The Princess</div>
+        <div class="card-desc">Fearless &amp; fun<br>Age 2+</div>
+      </div>
+
+    </div>
+
+    <!-- Jerry hint below -->
+    <div style="margin-top:1.6em;display:flex;align-items:flex-end;gap:0.8em">
+      <svg width="58" height="68" viewBox="0 0 180 210" style="flex-shrink:0">
+        <ellipse cx="82" cy="145" rx="38" ry="46" fill="#C8955A" stroke="#333" stroke-width="3.5"/>
+        <ellipse cx="82" cy="136" rx="29" ry="35" fill="#2C2C2C"/>
+        <ellipse cx="82" cy="158" rx="20" ry="25" fill="#F0EBE0"/>
+        <rect x="66" y="88" width="32" height="24" rx="12" fill="#C8955A" stroke="#333" stroke-width="3"/>
+        <ellipse cx="82" cy="72" rx="32" ry="28" fill="#C8955A" stroke="#333" stroke-width="3.5"/>
+        <ellipse cx="82" cy="86" rx="18" ry="14" fill="#B8855A" stroke="#333" stroke-width="3"/>
+        <ellipse cx="68" cy="68" rx="12" ry="10" fill="#D4A870"/>
+        <ellipse cx="96" cy="68" rx="12" ry="10" fill="#D4A870"/>
+        <ellipse cx="68" cy="65" rx="9" ry="7" fill="white" stroke="#333" stroke-width="2.5"/>
+        <ellipse cx="96" cy="65" rx="9" ry="7" fill="white" stroke="#333" stroke-width="2.5"/>
+        <path d="M59,63 Q68,57 77,63" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+        <path d="M87,63 Q96,57 105,63" stroke="#333" stroke-width="3" fill="#C8955A" stroke-linecap="round"/>
+        <ellipse cx="82" cy="89" rx="6" ry="5" fill="#7A3020" stroke="#333" stroke-width="2"/>
+        <path d="M72,97 Q82,104 92,97" stroke="#333" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M52,58 Q28,42 24,80 Q34,84 50,74 Z" fill="#C8955A" stroke="#333" stroke-width="3"/>
+        <path d="M112,58 Q136,42 140,80 Q130,84 114,74 Z" fill="#C8955A" stroke="#333" stroke-width="3"/>
+        <text x="118" y="42" font-family="Fredoka One,cursive" font-size="16" fill="#AAA" stroke="white" stroke-width="3" paint-order="stroke">z z</text>
+      </svg>
+      <div style="background:white;border:3px solid #333;border-radius:18px;padding:0.7em 1em;font-size:clamp(0.78rem,2.1vw,0.98rem);max-width:min(240px,60vw);line-height:1.55;box-shadow:0 4px 10px rgba(0,0,0,0.1)">
+        <em>"Choose wisely... or just your favourite. Either is perfectly fine with me."</em>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════ MAP SCREEN ═══════════════ -->
+<div id="screen-map" class="screen">
+  <div style="position:absolute;inset:0;background:linear-gradient(180deg,#87CEEB 0%,#B8E890 52%,#7EC850 100%)"></div>
+
+  <div class="map-header">
+    <div class="hdr-badge" id="player-badge">🐾 Explorer</div>
+    <div class="hdr-title">🗺️ The Adventure Map</div>
+    <div class="hdr-silver">🥈 <span id="silver-display">0 / 5</span></div>
+  </div>
+
+  <!-- Main SVG map -->
+  <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet">
+
+    <!-- Background hills -->
+    <ellipse cx="120" cy="590" rx="220" ry="90" fill="#80C048" opacity="0.45"/>
+    <ellipse cx="450" cy="575" rx="270" ry="75" fill="#78B840" opacity="0.4"/>
+    <ellipse cx="760" cy="585" rx="200" ry="70" fill="#88C850" opacity="0.45"/>
+    <ellipse cx="320" cy="568" rx="160" ry="55" fill="#90D060" opacity="0.35"/>
+
+    <!-- Distant mountains (castle backdrop) -->
+    <polygon points="320,180 370,90 420,180" fill="#B8C8D8" opacity="0.6"/>
+    <polygon points="360,180 420,75 480,180" fill="#C8D8E8" opacity="0.55"/>
+    <polygon points="400,180 450,95 500,180" fill="#B8C8D8" opacity="0.5"/>
+
+    <!-- Winding dirt path -->
+    <path d="M 155 490 Q 210 468 268 455 Q 330 442 385 408 Q 442 370 490 328 Q 538 288 575 248 Q 612 208 645 188 Q 668 168 668 148 Q 660 118 630 106 Q 596 94 558 100 Q 520 106 488 120 Q 462 130 448 138"
+          stroke="#C49830" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+    <path d="M 155 490 Q 210 468 268 455 Q 330 442 385 408 Q 442 370 490 328 Q 538 288 575 248 Q 612 208 645 188 Q 668 168 668 148 Q 660 118 630 106 Q 596 94 558 100 Q 520 106 488 120 Q 462 130 448 138"
+          stroke="#E8C050" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="22,14" opacity="0.8"/>
+
+    <!-- ── WORLD 1: FARM ── -->
+    <g id="world-farm" onclick="worldClick('farm')" style="cursor:pointer">
+      <g class="unlocked-pulse">
+        <circle cx="155" cy="470" r="50" fill="#90C845" stroke="#333" stroke-width="4.5"/>
+        <circle cx="155" cy="470" r="42" fill="#A8E055" stroke="none"/>
+        <!-- Farm scene: barn + sun -->
+        <rect x="133" y="454" width="26" height="22" rx="3" fill="#D04030" stroke="#333" stroke-width="2"/>
+        <polygon points="133,454 146,440 159,454" fill="#B03020" stroke="#333" stroke-width="2"/>
+        <rect x="141" y="462" width="10" height="14" rx="2" fill="#7A4020"/>
+        <rect x="163" y="458" width="16" height="14" rx="3" fill="#60A030" stroke="#333" stroke-width="1.5"/>
+        <!-- Tractor (green!) -->
+        <rect x="118" y="472" width="22" height="14" rx="4" fill="#2E7D32" stroke="#333" stroke-width="2"/>
+        <circle cx="122" cy="487" r="5" fill="#1B4D1E" stroke="#333" stroke-width="1.5"/>
+        <circle cx="136" cy="487" r="5" fill="#1B4D1E" stroke="#333" stroke-width="1.5"/>
+        <text x="127" y="481" font-size="8" fill="#FFD700" font-family="Fredoka One,cursive" text-anchor="middle">Z</text>
+      </g>
+      <text x="155" y="534" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#333" stroke="white" stroke-width="5" paint-order="stroke">The Farm</text>
+    </g>
+
+    <!-- ── WORLD 2: RACE TRACK ── -->
+    <g id="world-race" onclick="worldClick('race')" style="cursor:pointer">
+      <circle cx="340" cy="405" r="50" fill="#F0D030" stroke="#333" stroke-width="4.5"/>
+      <circle cx="340" cy="405" r="42" fill="#F8E840" stroke="none"/>
+      <!-- Chequered flag -->
+      <rect x="318" y="387" width="24" height="16" rx="2" fill="white" stroke="#333" stroke-width="1.5"/>
+      <rect x="318" y="387" width="6" height="4" fill="#333"/><rect x="330" y="387" width="6" height="4" fill="#333"/>
+      <rect x="324" y="391" width="6" height="4" fill="#333"/><rect x="336" y="391" width="6" height="4" fill="#333"/>
+      <rect x="318" y="395" width="6" height="4" fill="#333"/><rect x="330" y="395" width="6" height="4" fill="#333"/>
+      <rect x="316" y="383" width="3" height="22" rx="1.5" fill="#333"/>
+      <!-- Red car (suspiciously lightning-bolt'd) -->
+      <rect x="330" y="405" width="28" height="14" rx="5" fill="#E03020" stroke="#333" stroke-width="2"/>
+      <ellipse cx="334" cy="420" r="4" fill="#222" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="354" cy="420" r="4" fill="#222" stroke="#333" stroke-width="1.5"/>
+      <path d="M338,410 L344,405 L348,410" stroke="#FFD700" stroke-width="1.5" fill="none"/>
+      <!-- Lock overlay -->
+      <text x="340" y="410" text-anchor="middle" font-size="26" id="lock-race" opacity="0">🔒</text>
+      <rect x="290" y="355" width="100" height="100" rx="50" fill="black" opacity="0" id="lock-race-overlay"/>
+    </g>
+    <text x="340" y="470" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#333" stroke="white" stroke-width="5" paint-order="stroke">Race Track</text>
+
+    <!-- ── WORLD 3: MAGICAL FOREST ── -->
+    <g id="world-forest" onclick="worldClick('forest')" style="cursor:pointer">
+      <circle cx="508" cy="308" r="50" fill="#48B868" stroke="#333" stroke-width="4.5"/>
+      <circle cx="508" cy="308" r="42" fill="#60D080" stroke="none"/>
+      <!-- Big mushroom -->
+      <rect x="503" y="306" width="10" height="18" rx="3" fill="#E8D8B0" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="508" cy="306" rx="18" ry="11" fill="#E03030" stroke="#333" stroke-width="2"/>
+      <ellipse cx="502" cy="303" rx="4" ry="3" fill="white"/><ellipse cx="514" cy="302" rx="3" ry="2.5" fill="white"/><ellipse cx="508" cy="298" rx="3" ry="2.5" fill="white"/>
+      <!-- Trees -->
+      <rect x="487" y="310" width="8" height="15" rx="2" fill="#5A3010" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="491" cy="306" rx="11" ry="12" fill="#2A8030" stroke="#333" stroke-width="2"/>
+      <rect x="521" y="312" width="8" height="13" rx="2" fill="#5A3010" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="525" cy="308" rx="10" ry="11" fill="#2A8030" stroke="#333" stroke-width="2"/>
+      <!-- Fairy sparkles -->
+      <text x="488" y="295" font-size="10">✨</text>
+      <text x="520" y="293" font-size="10">✨</text>
+    </g>
+    <text x="508" y="374" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#333" stroke="white" stroke-width="5" paint-order="stroke">Magic Forest</text>
+
+    <!-- ── WORLD 4: DINOSAUR LANDS ── -->
+    <g id="world-dino" onclick="worldClick('dino')" style="cursor:pointer">
+      <circle cx="650" cy="178" r="50" fill="#B06828" stroke="#333" stroke-width="4.5"/>
+      <circle cx="650" cy="178" r="42" fill="#CC8840" stroke="none"/>
+      <!-- Volcano -->
+      <polygon points="650,152 630,196 670,196" fill="#7A4020" stroke="#333" stroke-width="2"/>
+      <ellipse cx="650" cy="152" rx="10" ry="6" fill="#E84020" stroke="#C03010" stroke-width="1.5"/>
+      <!-- Friendly dino -->
+      <ellipse cx="638" cy="186" rx="14" ry="10" fill="#5A9830" stroke="#333" stroke-width="2"/>
+      <ellipse cx="628" cy="180" rx="9" ry="7" fill="#5A9830" stroke="#333" stroke-width="2"/>
+      <ellipse cx="621" cy="177" rx="5" ry="4" fill="#333"/>
+      <ellipse cx="619" cy="176" rx="1.5" ry="1.5" fill="white"/>
+      <!-- Spikes -->
+      <polygon points="634,176 636,170 638,176" fill="#7AB840" stroke="#333" stroke-width="1"/>
+      <polygon points="638,175 640,168 642,175" fill="#7AB840" stroke="#333" stroke-width="1"/>
+      <polygon points="642,176 644,170 646,176" fill="#7AB840" stroke="#333" stroke-width="1"/>
+    </g>
+    <text x="650" y="242" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#333" stroke="white" stroke-width="5" paint-order="stroke">Dino Lands</text>
+
+    <!-- ── WORLD 5: CASTLE ── -->
+    <g id="world-castle" onclick="worldClick('castle')" style="cursor:pointer">
+      <circle cx="448" cy="128" r="50" fill="#8060B8" stroke="#333" stroke-width="4.5"/>
+      <circle cx="448" cy="128" r="42" fill="#A080D8" stroke="none"/>
+      <!-- Castle -->
+      <rect x="428" y="118" width="40" height="28" rx="3" fill="#E8E0F0" stroke="#333" stroke-width="2"/>
+      <!-- Battlements -->
+      <rect x="426" y="112" width="8" height="8" rx="1" fill="#E8E0F0" stroke="#333" stroke-width="2"/>
+      <rect x="436" y="112" width="8" height="8" rx="1" fill="#E8E0F0" stroke="#333" stroke-width="2"/>
+      <rect x="452" y="112" width="8" height="8" rx="1" fill="#E8E0F0" stroke="#333" stroke-width="2"/>
+      <rect x="462" y="112" width="8" height="8" rx="1" fill="#E8E0F0" stroke="#333" stroke-width="2"/>
+      <!-- Door -->
+      <rect x="441" y="130" width="14" height="16" rx="7" fill="#7A5030" stroke="#333" stroke-width="1.5"/>
+      <!-- Window -->
+      <ellipse cx="436" cy="124" rx="4" ry="5" fill="#88A8D8" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="460" cy="124" rx="4" ry="5" fill="#88A8D8" stroke="#333" stroke-width="1.5"/>
+      <!-- Flag -->
+      <rect x="448" y="100" width="2.5" height="14" fill="#333"/>
+      <polygon points="450.5,100 462,105 450.5,110" fill="#E83030" stroke="#B82020" stroke-width="1"/>
+      <!-- Stars around castle -->
+      <text x="426" y="112" font-size="9">⭐</text>
+      <text x="462" y="112" font-size="9">⭐</text>
+    </g>
+    <text x="448" y="192" text-anchor="middle" font-family="Fredoka One,cursive" font-size="16" fill="#333" stroke="white" stroke-width="5" paint-order="stroke">The Castle</text>
+
+    <!-- Jerry on map -->
+    <g id="jerry-map" transform="translate(72,408)">
+      <ellipse cx="38" cy="56" rx="20" ry="25" fill="#C8955A" stroke="#333" stroke-width="2.5"/>
+      <ellipse cx="38" cy="48" rx="16" ry="19" fill="#2C2C2C"/>
+      <ellipse cx="38" cy="62" rx="12" ry="14" fill="#F0EBE0"/>
+      <ellipse cx="38" cy="30" rx="18" ry="16" fill="#C8955A" stroke="#333" stroke-width="2.5"/>
+      <ellipse cx="38" cy="38" rx="11" ry="9" fill="#B8855A" stroke="#333" stroke-width="2"/>
+      <ellipse cx="30" cy="27" rx="7" ry="6" fill="#D4A870"/>
+      <ellipse cx="46" cy="27" rx="7" ry="6" fill="#D4A870"/>
+      <ellipse cx="30" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
+      <ellipse cx="46" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
+      <path d="M25,23 Q30,19 35,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
+      <path d="M41,23 Q46,19 51,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
+      <ellipse cx="38" cy="40" rx="3.5" ry="3" fill="#7A3020" stroke="#333" stroke-width="1.5"/>
+      <path d="M33,45 Q38,50 43,45" stroke="#333" stroke-width="2" fill="none"/>
+      <path d="M24,18 Q12,10 10,34 Q18,36 26,30 Z" fill="#C8955A" stroke="#333" stroke-width="2.5"/>
+      <path d="M52,18 Q64,10 66,34 Q58,36 50,30 Z" fill="#C8955A" stroke="#333" stroke-width="2.5"/>
+      <text x="54" y="12" font-family="Fredoka One,cursive" font-size="11" fill="#AAA" stroke="white" stroke-width="2.5" paint-order="stroke">z z</text>
+    </g>
+
+  </svg>
+
+  <!-- Jerry speech bubble -->
+  <div class="map-bubble">
+    <em id="map-bubble-text">"Ohhh... I can smell something silvery. I think it starts at the farm... after a small stretch."</em>
+  </div>
+
+</div>
+
+<!-- Toast notification -->
+<div id="toast">🔒 Finish the farm first!</div>
+
+<script>
+  const state = {
+    character: null,
+    silverCount: 0,
+    complete: new Set()
+  };
+
+  const WORLDS = ['farm','race','forest','dino','castle'];
+  const WORLD_NAMES = { farm:'The Farm', race:'Race Track', forest:'Magic Forest', dino:'Dino Lands', castle:'The Castle' };
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function selectCharacter(type) {
+    state.character = type;
+    const badge = document.getElementById('player-badge');
+    if (type === 'knight') {
+      badge.innerHTML = '⚔️ The Knight';
+      badge.style.color = '#4A90D9';
+    } else {
+      badge.innerHTML = '👑 The Princess';
+      badge.style.color = '#E06090';
+    }
+    updateMapState();
+    showScreen('screen-map');
+  }
+
+  function updateMapState() {
+    const lockIds = { race:'lock-race', forest:'lock-forest', dino:'lock-dino', castle:'lock-castle' };
+    WORLDS.forEach((world, i) => {
+      const el = document.getElementById('world-' + world);
+      if (!el) return;
+      const unlocked = i === 0 || state.complete.has(WORLDS[i - 1]);
+      el.style.opacity = unlocked ? '1' : '0.45';
+      el.style.filter = unlocked ? 'none' : 'grayscale(0.5)';
+      const circles = el.querySelectorAll('circle');
+      if (unlocked && i !== 0) {
+        circles.forEach(c => c.classList.add('unlocked-pulse'));
+      }
+    });
+    document.getElementById('silver-display').textContent = state.silverCount + ' / 5';
+  }
+
+  function worldClick(world) {
+    const idx = WORLDS.indexOf(world);
+    const prevUnlocked = idx === 0 || state.complete.has(WORLDS[idx - 1]);
+    if (!prevUnlocked) {
+      showToast('🔒 Finish ' + WORLD_NAMES[WORLDS[idx - 1]] + ' first!');
+      return;
+    }
+    showToast('🚧 ' + WORLD_NAMES[world] + ' — coming soon!');
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      t.style.transform = 'translateX(-50%) translateY(120px)';
+    }, 2600);
+  }
+</script>
+
+</body>
+</html>
