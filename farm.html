@@ -56,6 +56,18 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
 }
 #horseshoe.bouncing { animation: silverBounce 1.8s ease-out forwards; }
 
+/* ── Opening zoom + parallax ── */
+@keyframes sceneZoom  { from { transform: scale(0.68); } to { transform: scale(1); } }
+@keyframes driftBg    { from { transform: translateY(-18px); } to { transform: translateY(0); } }
+@keyframes driftMid   { from { transform: translateY(10px);  } to { transform: translateY(0); } }
+@keyframes driftNear  { from { transform: translateY(26px);  } to { transform: translateY(0); } }
+@keyframes driftFg    { from { transform: translateY(52px);  } to { transform: translateY(0); } }
+#scene      { animation: sceneZoom 2.2s cubic-bezier(0.16,1,0.3,1) both; transform-origin: center center; }
+#layer-bg   { animation: driftBg   2.2s cubic-bezier(0.16,1,0.3,1) both; }
+#layer-mid  { animation: driftMid  2.2s cubic-bezier(0.16,1,0.3,1) both; }
+#layer-near { animation: driftNear 2.2s cubic-bezier(0.16,1,0.3,1) both; }
+#layer-fg   { animation: driftFg   2.2s cubic-bezier(0.16,1,0.3,1) both; }
+
 /* ── PRINCESS PUZZLE ── */
 #princess-puzzle { position: absolute; inset: 0; z-index: 20; display: none; pointer-events: none; }
 
@@ -152,6 +164,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
     </linearGradient>
   </defs>
 
+  <!-- ── Layer 1: Far background ── -->
+  <g id="layer-bg">
   <!-- Sky -->
   <rect width="800" height="600" fill="url(#sky)"/>
 
@@ -187,6 +201,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   <rect x="0" y="372" width="800" height="228" fill="#7EC848"/>
   <ellipse cx="400" cy="373" rx="460" ry="22" fill="#6AAC30" opacity="0.55"/>
 
+  </g><!-- /layer-bg -->
+
+  <!-- ── Layer 2: Mid-distance (barn, scarecrow) ── -->
+  <g id="layer-mid">
   <!-- ═══ BARN — mid-distant: 2px outlines ═══ -->
   <rect x="478" y="212" width="224" height="178" rx="4" fill="#D03828" stroke="#333" stroke-width="2"/>
   <g stroke="#B82818" stroke-width="1" opacity="0.4">
@@ -242,6 +260,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   <ellipse cx="341" cy="265" rx="27" ry="7" fill="#C8A028" stroke="#333" stroke-width="2"/>
   <rect x="327" y="249" width="27" height="17" rx="4" fill="#C8A028" stroke="#333" stroke-width="2"/>
 
+  </g><!-- /layer-mid -->
+
+  <!-- ── Layer 3: Near-ground (fence, flowers) ── -->
+  <g id="layer-near">
   <!-- ═══ FENCE — mid-foreground: 3px posts, 2px rails ═══ -->
   <rect x="0" y="386" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="2"/>
   <rect x="0" y="410" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="2"/>
@@ -268,6 +290,10 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
   <circle cx="748" cy="431" r="5" fill="#A040F0" stroke="#333" stroke-width="2.5"/>
   <circle cx="748" cy="431" r="2.5" fill="#FFE040"/>
 
+  </g><!-- /layer-near -->
+
+  <!-- ── Layer 4: Foreground (chickens, Jerry) ── -->
+  <g id="layer-fg">
   <!-- ═══ CHICKENS — foreground: 3.5px outlines ═══ -->
   <g transform="translate(306,450)">
     <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="3.5"/>
@@ -312,6 +338,7 @@ html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito',
     <path d="M34,22 Q32,18 30,22" stroke="#333" stroke-width="3" fill="#2A2A2A"/>
     <path d="M38,64 Q45,55 52,60" stroke="#2A2A2A" stroke-width="4.5" fill="none" stroke-linecap="round"/>
   </g>
+  </g><!-- /layer-fg -->
 </svg>
 
 <!-- Back -->
