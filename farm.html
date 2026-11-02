@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Project Silver — The Farm</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Nunito', sans-serif; touch-action: none; user-select: none; -webkit-user-select: none; }
+
+#scene { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+#back-btn {
+  position: absolute; top: 0.7em; left: 0.7em; z-index: 50;
+  background: white; border: 3px solid #333; border-radius: 50px;
+  padding: 0.4em 1.1em; font-family: 'Fredoka One', cursive;
+  font-size: clamp(0.85rem, 2.5vw, 1.1rem); cursor: pointer;
+  box-shadow: 0 3px 0 #333; transition: transform 0.1s;
+}
+#back-btn:active { transform: translateY(3px); box-shadow: none; }
+
+/* ── INTRO ── */
+#intro {
+  position: absolute; inset: 0; z-index: 30;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: 2em; cursor: pointer;
+}
+.bubble {
+  background: white; border: 3.5px solid #333; border-radius: 22px;
+  padding: 0.9em 1.5em; max-width: min(400px, 88vw);
+  font-size: clamp(0.9rem, 2.5vw, 1.1rem); line-height: 1.7;
+  text-align: center; color: #333;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.14);
+  animation: bPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes bPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.tap-hint {
+  font-family: 'Fredoka One', cursive; font-size: clamp(0.8rem,2vw,1rem);
+  color: #888; margin-top: 0.6em;
+  animation: blink 1.6s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+/* ── PRINCESS PUZZLE ── */
+#princess-puzzle { position: absolute; inset: 0; z-index: 20; display: none; pointer-events: none; }
+
+.slot {
+  position: absolute; border-radius: 18px;
+  border: 4px dashed rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  pointer-events: all;
+}
+.slot.near { border-color: #FFD700; border-style: solid; box-shadow: 0 0 18px rgba(255,215,0,0.6); }
+.slot.done { border-color: #50C050; border-style: solid; background: rgba(80,192,80,0.15); }
+.slot-label { font-family: 'Fredoka One', cursive; font-size: clamp(0.65rem,1.8vw,0.9rem); color: #666; }
+
+.token {
+  position: absolute; border-radius: 18px;
+  border: 4px solid #333; background: white;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 3px;
+  box-shadow: 0 5px 0 #333, 0 7px 14px rgba(0,0,0,0.18);
+  cursor: grab; touch-action: none; pointer-events: all;
+  transition: box-shadow 0.15s;
+}
+.token.dragging { box-shadow: 0 10px 0 #333, 0 14px 22px rgba(0,0,0,0.3); z-index: 99; cursor: grabbing; }
+.token.placed { pointer-events: none; border-color: #50C050; box-shadow: 0 2px 0 #50C050; }
+.token-label { font-family: 'Fredoka One', cursive; font-size: clamp(0.65rem,1.8vw,0.9rem); color: #333; }
+
+/* ── KNIGHT PUZZLE ── */
+#knight-puzzle {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 20; display: none;
+  flex-direction: column; align-items: center; padding-bottom: 1.2em; gap: 0.7em;
+}
+#clue-row {
+  background: rgba(255,255,255,0.92); border: 3px solid #333; border-radius: 16px;
+  padding: 0.5em 1.2em; display: flex; align-items: center; gap: 0.5em;
+  font-family: 'Fredoka One', cursive; font-size: clamp(0.85rem,2.4vw,1.1rem); color: #333;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+}
+.k-animals { display: flex; gap: clamp(0.8em,3vw,2em); }
+.k-btn {
+  width: clamp(95px,18vw,130px); height: clamp(95px,18vw,130px);
+  border-radius: 20px; border: 4px solid #333; background: white;
+  cursor: pointer; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px;
+  box-shadow: 0 5px 0 #333, 0 7px 14px rgba(0,0,0,0.18);
+  transition: transform 0.12s, box-shadow 0.12s; position: relative;
+}
+.k-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #333; }
+.k-btn.tapped { border-color: #FFD700; box-shadow: 0 5px 0 #B8860B; }
+.k-btn.wrong { animation: shake 0.4s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+.k-badge {
+  position: absolute; top: -10px; right: -10px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #FFD700; border: 3px solid #333;
+  font-family: 'Fredoka One', cursive; font-size: 13px; color: #333;
+  display: none; align-items: center; justify-content: center;
+}
+.k-label { font-family: 'Fredoka One', cursive; font-size: clamp(0.75rem,2vw,1rem); color: #333; }
+
+/* ── WIN ── */
+#win {
+  position: absolute; inset: 0; z-index: 60; display: none;
+  align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.45);
+}
+.win-box {
+  background: white; border: 5px solid #333; border-radius: 28px;
+  padding: 1.5em 2em; text-align: center;
+  box-shadow: 0 8px 0 #333, 0 12px 30px rgba(0,0,0,0.3);
+  max-width: min(380px, 88vw);
+  animation: bPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+.win-title { font-family: 'Fredoka One', cursive; font-size: clamp(2rem,7vw,3.2rem); color: #B8B8B8; text-shadow: 3px 3px 0 #888, -1px -1px 0 #555; }
+.win-jerry { font-size: clamp(0.85rem,2.3vw,1rem); color: #555; line-height: 1.65; font-style: italic; margin: 0.6em 0 1em; }
+.win-btn {
+  background: #FFD700; border: 4px solid #333; border-radius: 50px;
+  padding: 0.7em 2em; font-family: 'Fredoka One', cursive;
+  font-size: clamp(1.1rem,3.5vw,1.6rem); color: #333; cursor: pointer;
+  box-shadow: 0 5px 0 #B8860B; transition: transform 0.1s;
+}
+.win-btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #B8860B; }
+</style>
+</head>
+<body>
+
+<!-- ══ FARM SCENE ══ -->
+<svg id="scene" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5BB8F5"/>
+      <stop offset="100%" stop-color="#B8E0F8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="800" height="600" fill="url(#sky)"/>
+
+  <!-- Sun -->
+  <circle cx="698" cy="82" r="55" fill="#FFE860" opacity="0.9"/>
+  <circle cx="698" cy="82" r="44" fill="#FFF080"/>
+  <g stroke="#FFD700" stroke-width="5" stroke-linecap="round" opacity="0.6">
+    <line x1="698" y1="15" x2="698" y2="5"/>
+    <line x1="745" y1="35" x2="752" y2="26"/>
+    <line x1="765" y1="82" x2="775" y2="82"/>
+    <line x1="745" y1="129" x2="752" y2="138"/>
+    <line x1="651" y1="35" x2="644" y2="26"/>
+    <line x1="631" y1="82" x2="621" y2="82"/>
+  </g>
+
+  <!-- Clouds -->
+  <g opacity="0.92">
+    <ellipse cx="105" cy="78" rx="58" ry="22" fill="white"/>
+    <ellipse cx="80" cy="63" rx="34" ry="29" fill="white"/>
+    <ellipse cx="122" cy="60" rx="30" ry="26" fill="white"/>
+  </g>
+  <g opacity="0.85">
+    <ellipse cx="338" cy="52" rx="48" ry="19" fill="white"/>
+    <ellipse cx="315" cy="41" rx="28" ry="24" fill="white"/>
+    <ellipse cx="355" cy="37" rx="26" ry="22" fill="white"/>
+  </g>
+
+  <!-- Far hills -->
+  <ellipse cx="180" cy="398" rx="265" ry="92" fill="#78C040" opacity="0.68"/>
+  <ellipse cx="590" cy="388" rx="305" ry="82" fill="#82CA48" opacity="0.62"/>
+
+  <!-- Ground -->
+  <rect x="0" y="372" width="800" height="228" fill="#7EC848"/>
+  <ellipse cx="400" cy="373" rx="460" ry="22" fill="#6AAC30" opacity="0.55"/>
+
+  <!-- Fence rails -->
+  <rect x="0" y="386" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="1.5"/>
+  <rect x="0" y="410" width="800" height="9" rx="4" fill="#E8D8A8" stroke="#C0A060" stroke-width="1.5"/>
+  <!-- Fence posts -->
+  <g fill="#C8A858" stroke="#907030" stroke-width="2">
+    <rect x="22" y="376" width="13" height="52" rx="3"/>
+    <rect x="102" y="376" width="13" height="52" rx="3"/>
+    <rect x="182" y="376" width="13" height="52" rx="3"/>
+    <rect x="262" y="376" width="13" height="52" rx="3"/>
+    <rect x="342" y="376" width="13" height="52" rx="3"/>
+    <rect x="422" y="376" width="13" height="52" rx="3"/>
+    <rect x="502" y="376" width="13" height="52" rx="3"/>
+    <rect x="582" y="376" width="13" height="52" rx="3"/>
+    <rect x="662" y="376" width="13" height="52" rx="3"/>
+    <rect x="742" y="376" width="13" height="52" rx="3"/>
+  </g>
+
+  <!-- Scarecrow -->
+  <rect x="256" y="282" width="7" height="118" rx="3" fill="#A07840" stroke="#7A5820" stroke-width="2"/>
+  <rect x="222" y="301" width="74" height="7" rx="3" fill="#A07840" stroke="#7A5820" stroke-width="2"/>
+  <rect x="240" y="308" width="38" height="52" rx="8" fill="#E8C848" stroke="#333" stroke-width="2.5"/>
+  <line x1="259" y1="312" x2="259" y2="358" stroke="#D4A828" stroke-width="2"/>
+  <rect x="224" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="2"/>
+  <rect x="266" y="302" width="28" height="12" rx="6" fill="#E8C848" stroke="#333" stroke-width="2"/>
+  <circle cx="259" cy="286" r="21" fill="#F5D888" stroke="#333" stroke-width="2.5"/>
+  <path d="M250,281 Q259,291 268,281" stroke="#333" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="252" cy="276" rx="4" ry="4" fill="#333"/>
+  <ellipse cx="266" cy="276" rx="4" ry="4" fill="#333"/>
+  <ellipse cx="259" cy="265" rx="27" ry="7" fill="#C8A028" stroke="#333" stroke-width="2.5"/>
+  <rect x="245" y="249" width="27" height="17" rx="4" fill="#C8A028" stroke="#333" stroke-width="2.5"/>
+
+  <!-- John Deere Tractor -->
+  <circle cx="132" cy="368" r="44" fill="#1B4D1E" stroke="#333" stroke-width="3.5"/>
+  <circle cx="132" cy="368" r="33" fill="#2E7D32" stroke="#444" stroke-width="1.5"/>
+  <circle cx="207" cy="378" r="24" fill="#1B4D1E" stroke="#333" stroke-width="3"/>
+  <circle cx="207" cy="378" r="17" fill="#2E7D32" stroke="#444" stroke-width="1.5"/>
+  <rect x="128" y="308" width="102" height="54" rx="8" fill="#367C2B" stroke="#333" stroke-width="3.5"/>
+  <rect x="152" y="278" width="62" height="36" rx="6" fill="#367C2B" stroke="#333" stroke-width="3"/>
+  <rect x="158" y="283" width="50" height="25" rx="4" fill="#A8D8F8" stroke="#333" stroke-width="2"/>
+  <rect x="126" y="290" width="10" height="24" rx="5" fill="#555" stroke="#333" stroke-width="2"/>
+  <ellipse cx="131" cy="288" rx="7" ry="5" fill="#333"/>
+  <circle cx="131" cy="278" r="8" fill="#DDD" opacity="0.65"/>
+  <circle cx="138" cy="268" r="6" fill="#DDD" opacity="0.45"/>
+  <rect x="130" y="322" width="98" height="8" rx="3" fill="#FFD700"/>
+  <text x="182" y="265" font-family="Fredoka One,cursive" font-size="13" fill="#888" stroke="white" stroke-width="3" paint-order="stroke">z</text>
+  <text x="196" y="253" font-family="Fredoka One,cursive" font-size="17" fill="#888" stroke="white" stroke-width="3" paint-order="stroke">z</text>
+  <text x="212" y="239" font-family="Fredoka One,cursive" font-size="21" fill="#AAA" stroke="white" stroke-width="3" paint-order="stroke">Z</text>
+
+  <!-- Chickens -->
+  <g transform="translate(374,382)">
+    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="2"/>
+    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="2"/>
+    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="1.5"/>
+    <circle cx="18" cy="-11" r="2.5" fill="#333"/>
+    <polygon points="15,-20 12,-15 17,-15 14,-20" fill="#E03020"/>
+    <polygon points="19,-19 17,-14 21,-14 19,-19" fill="#E03020"/>
+    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="2.5"/>
+    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="2.5"/>
+  </g>
+  <g transform="translate(412,393) scale(0.72)">
+    <ellipse cx="0" cy="0" rx="17" ry="13" fill="white" stroke="#333" stroke-width="2.5"/>
+    <circle cx="15" cy="-9" r="11" fill="white" stroke="#333" stroke-width="2.5"/>
+    <polygon points="23,-9 29,-6 23,-3" fill="#F08020" stroke="#333" stroke-width="2"/>
+    <circle cx="18" cy="-11" r="2.5" fill="#333"/>
+    <polygon points="15,-20 12,-15 17,-15" fill="#E03020"/>
+    <line x1="-4" y1="13" x2="-7" y2="22" stroke="#F08020" stroke-width="3"/>
+    <line x1="4" y1="13" x2="7" y2="22" stroke="#F08020" stroke-width="3"/>
+  </g>
+
+  <!-- Grass tufts / flowers -->
+  <polygon points="50,376 54,360 58,376" fill="#58A018" stroke="#407010" stroke-width="1"/>
+  <polygon points="55,376 60,356 65,376" fill="#58A018" stroke="#407010" stroke-width="1"/>
+  <circle cx="82" cy="374" r="5" fill="#F050A0" stroke="#333" stroke-width="1.5"/>
+  <circle cx="82" cy="374" r="2.5" fill="#FFE040"/>
+  <circle cx="448" cy="373" r="5" fill="#F0D020" stroke="#333" stroke-width="1.5"/>
+  <circle cx="448" cy="373" r="2.5" fill="#F09020"/>
+  <circle cx="748" cy="374" r="5" fill="#A040F0" stroke="#333" stroke-width="1.5"/>
+  <circle cx="748" cy="374" r="2.5" fill="#FFE040"/>
+
+  <!-- BARN body -->
+  <rect x="478" y="212" width="224" height="178" rx="4" fill="#D03828" stroke="#333" stroke-width="4"/>
+  <g stroke="#B82818" stroke-width="2" opacity="0.4">
+    <line x1="512" y1="212" x2="512" y2="390"/> <line x1="546" y1="212" x2="546" y2="390"/>
+    <line x1="580" y1="212" x2="580" y2="390"/> <line x1="614" y1="212" x2="614" y2="390"/>
+    <line x1="648" y1="212" x2="648" y2="390"/> <line x1="682" y1="212" x2="682" y2="390"/>
+  </g>
+  <!-- Barn roof -->
+  <polygon points="458,214 590,112 722,214" fill="#A02020" stroke="#333" stroke-width="4"/>
+  <rect x="582" y="108" width="16" height="108" rx="4" fill="#882010" stroke="#333" stroke-width="2.5"/>
+  <!-- Weathervane -->
+  <rect x="589" y="78" width="4" height="32" fill="#888" stroke="#555" stroke-width="1"/>
+  <line x1="570" y1="84" x2="612" y2="84" stroke="#888" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="612" cy="82" rx="9" ry="7" fill="#888" stroke="#555" stroke-width="1.5"/>
+  <polygon points="612,76 618,70 614,76" fill="#888" stroke="#555" stroke-width="1"/>
+  <!-- Barn loft window -->
+  <rect x="564" y="150" width="52" height="42" rx="6" fill="#A8D8F8" stroke="#333" stroke-width="3"/>
+  <line x1="590" y1="150" x2="590" y2="192" stroke="#333" stroke-width="2"/>
+  <line x1="564" y1="171" x2="616" y2="171" stroke="#333" stroke-width="2"/>
+  <!-- Barn doors -->
+  <rect id="door-l" x="488" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="3.5"/>
+  <rect id="door-r" x="584" y="270" width="94" height="120" rx="4" fill="#7A4828" stroke="#333" stroke-width="3.5"/>
+  <line x1="583" y1="270" x2="583" y2="390" stroke="#333" stroke-width="3"/>
+  <!-- Door handles -->
+  <circle cx="581" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="2"/>
+  <circle cx="585" cy="332" r="6" fill="#C8A030" stroke="#333" stroke-width="2"/>
+
+  <!-- Chest (Knight puzzle, hidden) -->
+  <g id="chest" opacity="0" style="transition:opacity 0.5s">
+    <rect x="535" y="332" width="70" height="54" rx="8" fill="#8B5E20" stroke="#333" stroke-width="3.5"/>
+    <rect x="535" y="332" width="70" height="24" rx="8" fill="#A07030" stroke="#333" stroke-width="3"/>
+    <rect x="563" y="348" width="14" height="18" rx="4" fill="#C8A030" stroke="#333" stroke-width="2"/>
+    <rect x="535" y="344" width="70" height="6" rx="2" fill="#C8A030" stroke="#333" stroke-width="1.5"/>
+  </g>
+
+  <!-- Silver horseshoe (hidden until win) -->
+  <g id="horseshoe" opacity="0" style="transition:opacity 0.6s">
+    <path d="M555,318 Q538,302 538,282 Q538,258 556,246 Q574,234 592,246 Q610,258 610,282 Q610,302 593,318"
+          stroke="#C8C8C8" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <line x1="538" y1="318" x2="538" y2="334" stroke="#C8C8C8" stroke-width="12" stroke-linecap="round"/>
+    <line x1="593" y1="318" x2="593" y2="334" stroke="#C8C8C8" stroke-width="12" stroke-linecap="round"/>
+    <path d="M555,318 Q538,302 538,282 Q538,258 556,246 Q574,234 592,246 Q610,258 610,282 Q610,302 593,318"
+          stroke="white" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.6"/>
+    <text x="540" y="242" font-size="16">✨</text>
+    <text x="588" y="238" font-size="14">✨</text>
+  </g>
+
+  <!-- Jerry (bottom-left corner) -->
+  <g transform="translate(18, 415)">
+    <ellipse cx="38" cy="56" rx="20" ry="25" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="38" cy="48" rx="16" ry="19" fill="#C8955A"/>
+    <ellipse cx="38" cy="62" rx="12" ry="14" fill="#F0EBE0"/>
+    <ellipse cx="38" cy="30" rx="18" ry="16" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="38" cy="38" rx="11" ry="9" fill="#2A2A2A" stroke="#333" stroke-width="2"/>
+    <ellipse cx="30" cy="27" rx="7" ry="6" fill="#2A2A2A"/>
+    <ellipse cx="46" cy="27" rx="7" ry="6" fill="#2A2A2A"/>
+    <ellipse cx="30" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="46" cy="25" rx="5" ry="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <ellipse cx="31" cy="26" rx="3" ry="3" fill="#3A2010"/>
+    <ellipse cx="47" cy="26" rx="3" ry="3" fill="#3A2010"/>
+    <path d="M25,23 Q30,19 35,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
+    <path d="M41,23 Q46,19 51,23" stroke="#333" stroke-width="2" fill="#C8955A" stroke-linecap="round"/>
+    <ellipse cx="38" cy="40" rx="3.5" ry="3" fill="#7A3020" stroke="#333" stroke-width="1.5"/>
+    <path d="M33,45 Q38,50 43,45" stroke="#333" stroke-width="2" fill="none"/>
+    <path d="M24,18 Q12,10 10,34 Q18,36 26,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
+    <path d="M52,18 Q64,10 66,34 Q58,36 50,30 Z" fill="#2A2A2A" stroke="#333" stroke-width="2.5"/>
+    <path d="M36,22 Q38,18 40,22" stroke="#333" stroke-width="2" fill="#2A2A2A"/>
+    <path d="M34,22 Q32,18 30,22" stroke="#333" stroke-width="2" fill="#2A2A2A"/>
+    <path d="M38,64 Q45,55 52,60" stroke="#2A2A2A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>
+
+<!-- Back -->
+<button id="back-btn" onclick="location.href='index.html'">← Map</button>
+
+<!-- ══ INTRO ══ -->
+<div id="intro" onclick="advanceIntro()">
+  <div class="bubble" id="intro-text"></div>
+  <div class="tap-hint" id="tap-hint">Tap to continue...</div>
+</div>
+
+<!-- ══ PRINCESS PUZZLE ══ -->
+<div id="princess-puzzle">
+  <div class="slot" id="slot-cow"    data-animal="cow">    <div class="slot-label">COW</div></div>
+  <div class="slot" id="slot-pig"    data-animal="pig">    <div class="slot-label">PIG</div></div>
+  <div class="slot" id="slot-chicken" data-animal="chicken"><div class="slot-label">CHICKEN</div></div>
+  <div class="token" id="token-cow"    data-animal="cow"></div>
+  <div class="token" id="token-pig"    data-animal="pig"></div>
+  <div class="token" id="token-chicken" data-animal="chicken"></div>
+</div>
+
+<!-- ══ KNIGHT PUZZLE ══ -->
+<div id="knight-puzzle">
+  <div id="clue-row">
+    <span>Jerry heard:</span>
+    <span style="font-size:1.3em">🐄</span><span>→</span>
+    <span style="font-size:1.3em">🐷</span><span>→</span>
+    <span style="font-size:1.3em">🐔</span>
+  </div>
+  <div class="k-animals">
+    <button class="k-btn" id="kbtn-cow"     onclick="knightTap('cow')">
+      <span style="font-size:clamp(2rem,6vw,3rem)">🐄</span>
+      <div class="k-label">COW</div>
+      <div class="k-badge" id="kbadge-cow"></div>
+    </button>
+    <button class="k-btn" id="kbtn-pig"     onclick="knightTap('pig')">
+      <span style="font-size:clamp(2rem,6vw,3rem)">🐷</span>
+      <div class="k-label">PIG</div>
+      <div class="k-badge" id="kbadge-pig"></div>
+    </button>
+    <button class="k-btn" id="kbtn-chicken" onclick="knightTap('chicken')">
+      <span style="font-size:clamp(2rem,6vw,3rem)">🐔</span>
+      <div class="k-label">CHICKEN</div>
+      <div class="k-badge" id="kbadge-chicken"></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══ WIN ══ -->
+<div id="win" style="display:none;align-items:center;justify-content:center">
+  <div class="win-box">
+    <div style="font-size:3.5em;margin-bottom:0.1em">🥈</div>
+    <div class="win-title">Silver Found!</div>
+    <div class="win-jerry" id="win-text"></div>
+    <button class="win-btn" onclick="goMap()">Back to Map 🗺️</button>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────
+const char = sessionStorage.getItem('character') || 'knight';
+let step = 0, placed = 0, kTaps = [], solved = false;
+
+const SEQUENCE = ['cow','pig','chicken'];
+
+const introLines = [
+  '"Oh! You woke me up! ...That\'s alright. I was dreaming about a golden bone, but — ohhh — I can smell something silvery near that old barn!"',
+  char === 'princess'
+    ? '"Those poor animals are outside the barn! They want to go home. Can you help them find their places on the door?"'
+    : '"There\'s a locked chest by the barn. I heard the animals this morning — first the COW, then the PIG, then the CHICKEN. Tap them in that order!"',
+  '"Good luck! I\'ll be right here. ...Having a small sit-down."'
+];
+
+// ── Intro ───────────────────────────────────────────
+function advanceIntro() {
+  document.getElementById('intro-text').textContent = introLines[step];
+  step++;
+  if (step >= introLines.length) {
+    document.querySelector('#intro .tap-hint').textContent = 'Tap to start!';
+  }
+  if (step > introLines.length) {
+    document.getElementById('intro').style.display = 'none';
+    char === 'princess' ? startPrincess() : startKnight();
+  }
+}
+
+// ── Animal SVG helpers ──────────────────────────────
+function cowSVG(s) {
+  return `<svg width="${s}" height="${s*0.87}" viewBox="0 0 64 56">
+    <ellipse cx="32" cy="36" rx="24" ry="18" fill="#F0E8D0" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="21" cy="31" rx="8" ry="6" fill="#444" opacity="0.75"/>
+    <ellipse cx="42" cy="38" rx="6" ry="5" fill="#444" opacity="0.75"/>
+    <ellipse cx="48" cy="22" rx="14" ry="12" fill="#F0E8D0" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="54" cy="27" rx="8" ry="6" fill="#E8C8B0" stroke="#333" stroke-width="2"/>
+    <circle cx="52" cy="28" r="2" fill="#AA7060"/><circle cx="56" cy="28" r="2" fill="#AA7060"/>
+    <circle cx="44" cy="19" r="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <circle cx="45" cy="19" r="2.5" fill="#333"/>
+    <path d="M40,12 Q38,4 35,6" stroke="#C8A060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M52,13 Q54,5 57,7" stroke="#C8A060" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="35" cy="14" rx="7" ry="5" fill="#F0C8B0" stroke="#333" stroke-width="2"/>
+    <ellipse cx="26" cy="52" rx="10" ry="6" fill="#F0B8B0" stroke="#333" stroke-width="1.5"/>
+  </svg>`;
+}
+function pigSVG(s) {
+  return `<svg width="${s}" height="${s*0.87}" viewBox="0 0 64 56">
+    <ellipse cx="30" cy="36" rx="22" ry="18" fill="#F4A8B8" stroke="#333" stroke-width="2.5"/>
+    <circle cx="48" cy="24" r="16" fill="#F4A8B8" stroke="#333" stroke-width="2.5"/>
+    <ellipse cx="55" cy="28" rx="9" ry="7" fill="#E88898" stroke="#333" stroke-width="2"/>
+    <circle cx="53" cy="29" r="2.5" fill="#C06070"/><circle cx="57" cy="29" r="2.5" fill="#C06070"/>
+    <circle cx="44" cy="21" r="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <circle cx="45" cy="21" r="2.5" fill="#333"/>
+    <ellipse cx="40" cy="12" rx="7" ry="9" fill="#F098A8" stroke="#333" stroke-width="2"/>
+    <ellipse cx="40" cy="12" rx="4" ry="6" fill="#E07888"/>
+    <path d="M8,36 Q0,28 4,22 Q8,16 6,12" stroke="#F098A8" stroke-width="4" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+function chickenSVG(s) {
+  return `<svg width="${s}" height="${s*0.87}" viewBox="0 0 64 56">
+    <ellipse cx="28" cy="38" rx="20" ry="16" fill="#FFFFF8" stroke="#333" stroke-width="2.5"/>
+    <circle cx="46" cy="22" r="14" fill="#FFFFF8" stroke="#333" stroke-width="2.5"/>
+    <polygon points="56,22 64,19 56,16" fill="#F08020" stroke="#333" stroke-width="1.5"/>
+    <circle cx="50" cy="19" r="4" fill="white" stroke="#333" stroke-width="1.5"/>
+    <circle cx="51" cy="19" r="2.5" fill="#333"/>
+    <polygon points="40,10 36,4 42,4 40,10" fill="#E03020" stroke="#C02010" stroke-width="1"/>
+    <polygon points="46,8 43,2 49,2 46,8" fill="#E03020" stroke="#C02010" stroke-width="1"/>
+    <ellipse cx="56" cy="28" rx="4" ry="5" fill="#E03020" stroke="#C02010" stroke-width="1"/>
+    <ellipse cx="20" cy="36" rx="10" ry="8" fill="#E8E8E0" stroke="#333" stroke-width="2"/>
+  </svg>`;
+}
+const animalSVG = { cow: cowSVG, pig: pigSVG, chicken: chickenSVG };
+const animalColor = { cow:'#F8F0E0', pig:'#FDE8EE', chicken:'#FFFFF8' };
+const animalBorder = { cow:'#A07840', pig:'#D06080', chicken:'#C0A028' };
+
+// ── PRINCESS PUZZLE ────────────────────────────────
+let dragEl = null, dragOX = 0, dragOY = 0;
+
+function startPrincess() {
+  document.getElementById('princess-puzzle').style.display = 'block';
+  positionPrincess();
+  window.addEventListener('resize', positionPrincess);
+}
+
+function svgPt(svgX, svgY) {
+  const svg = document.getElementById('scene');
+  const pt = svg.createSVGPoint();
+  pt.x = svgX; pt.y = svgY;
+  const s = pt.matrixTransform(svg.getScreenCTM());
+  return { x: s.x, y: s.y };
+}
+
+function positionPrincess() {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const TS = Math.min(Math.round(vh * 0.17), Math.round(vw * 0.18), 115); // token size
+
+  // Barn door area in screen coordinates
+  const tl = svgPt(488, 270);
+  const br = svgPt(678, 390);
+  const dW = br.x - tl.x, dH = br.y - tl.y;
+  const sS = Math.min(Math.round(dW * 0.3), Math.round(dH * 0.42), 88); // slot size
+
+  const slots = [
+    { id:'slot-cow',     x: tl.x + dW*0.08,  y: tl.y + dH*0.08 },
+    { id:'slot-pig',     x: tl.x + dW*0.56,  y: tl.y + dH*0.08 },
+    { id:'slot-chicken', x: tl.x + dW*0.31,  y: tl.y + dH*0.52 }
+  ];
+  slots.forEach(s => {
+    const el = document.getElementById(s.id);
+    const a = el.dataset.animal;
+    if (el.classList.contains('done')) return;
+    Object.assign(el.style, {
+      left: s.x + 'px', top: s.y + 'px',
+      width: sS + 'px', height: sS + 'px',
+      background: animalColor[a] + '88',
+      borderColor: animalBorder[a]
+    });
+  });
+
+  // Tokens at bottom
+  const gap = 14;
+  const total = 3 * TS + 2 * gap;
+  const startX = (vw - total) / 2;
+  const baseY = vh - TS - 18;
+
+  ['cow','pig','chicken'].forEach((a, i) => {
+    const el = document.getElementById('token-' + a);
+    if (el.classList.contains('placed')) return;
+    const x = startX + i * (TS + gap);
+    el.dataset.hx = x; el.dataset.hy = baseY;
+    Object.assign(el.style, {
+      left: x + 'px', top: baseY + 'px',
+      width: TS + 'px', height: TS + 'px',
+      background: animalColor[a],
+      borderColor: animalBorder[a]
+    });
+    el.innerHTML = animalSVG[a](TS * 0.72) + `<div class="token-label">${a.toUpperCase()}</div>`;
+    el.onpointerdown = startDrag;
+  });
+}
+
+function startDrag(e) {
+  e.preventDefault();
+  dragEl = e.currentTarget;
+  if (dragEl.classList.contains('placed')) return;
+  const r = dragEl.getBoundingClientRect();
+  dragOX = e.clientX - r.left;
+  dragOY = e.clientY - r.top;
+  dragEl.classList.add('dragging');
+  dragEl.setPointerCapture(e.pointerId);
+  dragEl.onpointermove = moveDrag;
+  dragEl.onpointerup = endDrag;
+}
+function moveDrag(e) {
+  if (!dragEl) return;
+  dragEl.style.left = (e.clientX - dragOX) + 'px';
+  dragEl.style.top  = (e.clientY - dragOY) + 'px';
+  const a = dragEl.dataset.animal;
+  const slot = document.getElementById('slot-' + a);
+  const sr = slot.getBoundingClientRect(), er = dragEl.getBoundingClientRect();
+  const dist = Math.hypot(er.left+er.width/2 - (sr.left+sr.width/2), er.top+er.height/2 - (sr.top+sr.height/2));
+  slot.classList.toggle('near', dist < 80);
+}
+function endDrag(e) {
+  if (!dragEl) return;
+  dragEl.classList.remove('dragging');
+  dragEl.onpointermove = null; dragEl.onpointerup = null;
+  const a = dragEl.dataset.animal;
+  const slot = document.getElementById('slot-' + a);
+  const sr = slot.getBoundingClientRect(), er = dragEl.getBoundingClientRect();
+  const dist = Math.hypot(er.left+er.width/2 - (sr.left+sr.width/2), er.top+er.height/2 - (sr.top+sr.height/2));
+  slot.classList.remove('near');
+  if (dist < 90) {
+    dragEl.style.left = sr.left + 'px';
+    dragEl.style.top  = sr.top  + 'px';
+    dragEl.style.width = sr.width + 'px';
+    dragEl.style.height = sr.height + 'px';
+    dragEl.classList.add('placed');
+    slot.classList.add('done');
+    slot.innerHTML = '';
+    placed++;
+    if (placed === 3) setTimeout(openDoors, 500);
+  } else {
+    dragEl.style.transition = 'left 0.3s, top 0.3s';
+    dragEl.style.left = dragEl.dataset.hx + 'px';
+    dragEl.style.top  = dragEl.dataset.hy + 'px';
+    setTimeout(() => dragEl.style.transition = '', 350);
+  }
+  dragEl = null;
+}
+
+function openDoors() {
+  const dl = document.getElementById('door-l');
+  const dr = document.getElementById('door-r');
+  dl.style.transition = dr.style.transition = 'opacity 0.7s';
+  dl.style.opacity = dr.style.opacity = '0.15';
+  setTimeout(() => { document.getElementById('horseshoe').style.opacity = '1'; }, 500);
+  setTimeout(showWin, 1400);
+}
+
+// ── KNIGHT PUZZLE ───────────────────────────────────
+function startKnight() {
+  document.getElementById('chest').style.opacity = '1';
+  const kp = document.getElementById('knight-puzzle');
+  kp.style.display = 'flex';
+  kp.style.pointerEvents = 'all';
+}
+
+function knightTap(animal) {
+  if (solved) return;
+  const expected = SEQUENCE[kTaps.length];
+  if (animal === expected) {
+    kTaps.push(animal);
+    const badge = document.getElementById('kbadge-' + animal);
+    badge.textContent = kTaps.length;
+    badge.style.display = 'flex';
+    document.getElementById('kbtn-' + animal).classList.add('tapped');
+    if (kTaps.length === 3) setTimeout(openChest, 400);
+  } else {
+    const btn = document.getElementById('kbtn-' + animal);
+    btn.classList.add('wrong');
+    setTimeout(() => {
+      btn.classList.remove('wrong');
+      resetKnight();
+    }, 500);
+  }
+}
+
+function resetKnight() {
+  kTaps = [];
+  SEQUENCE.forEach(a => {
+    document.getElementById('kbadge-' + a).style.display = 'none';
+    document.getElementById('kbtn-' + a).classList.remove('tapped');
+  });
+}
+
+function openChest() {
+  document.getElementById('chest').style.opacity = '0.2';
+  document.getElementById('horseshoe').style.opacity = '1';
+  setTimeout(showWin, 800);
+}
+
+// ── Win ─────────────────────────────────────────────
+function showWin() {
+  if (solved) return;
+  solved = true;
+  const gs = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+  gs.silverCount = (gs.silverCount || 0) + 1;
+  gs.worldsComplete = gs.worldsComplete || [];
+  if (!gs.worldsComplete.includes('farm')) gs.worldsComplete.push('farm');
+  sessionStorage.setItem('gameState', JSON.stringify(gs));
+
+  document.getElementById('win-text').textContent =
+    char === 'princess'
+      ? '"Oh! SILVER! You found it! That was wonderful. You\'re very good at this. ...Almost as good as me."'
+      : '"The animals! They did it! You did it! I knew you would. I am the cleverest dog for finding such a clever adventurer."';
+  const w = document.getElementById('win');
+  w.style.display = 'flex';
+}
+
+function goMap() { location.href = 'index.html'; }
+
+// ── Boot ─────────────────────────────────────────────
+advanceIntro();
+</script>
+</body>
+</html>

@@ -599,6 +599,7 @@
 
   function selectCharacter(type) {
     state.character = type;
+    sessionStorage.setItem('character', type);
     const badge = document.getElementById('player-badge');
     if (type === 'knight') {
       badge.innerHTML = '⚔️ The Knight';
@@ -607,8 +608,17 @@
       badge.innerHTML = '👑 The Princess';
       badge.style.color = '#E06090';
     }
+    restoreGameState();
     updateMapState();
     showScreen('screen-map');
+  }
+
+  function restoreGameState() {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('gameState') || '{}');
+      if (saved.silverCount) state.silverCount = saved.silverCount;
+      if (saved.worldsComplete) saved.worldsComplete.forEach(w => state.complete.add(w));
+    } catch(e) {}
   }
 
   function updateMapState() {
@@ -634,6 +644,7 @@
       showToast('🔒 Finish ' + WORLD_NAMES[WORLDS[idx - 1]] + ' first!');
       return;
     }
+    if (world === 'farm') { window.location.href = 'farm.html'; return; }
     showToast('🚧 ' + WORLD_NAMES[world] + ' — coming soon!');
   }
 
